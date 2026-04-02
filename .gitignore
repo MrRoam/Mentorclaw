@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.env
+*.log
+runtime-artifacts/
+.openclaw*/
+logs/
+sessions/
+credentials/
+devices/
+secrets/

@@ -1,0 +1,21 @@
+{
+  "name": "educlaw-source",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Generic education kernel for Educlaw, separated from the runtime instance.",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "check": "node --experimental-strip-types --eval \"import('./src/index.ts')\"",
+    "build:plugin": "node scripts/build-plugin.mjs",
+    "test": "node --experimental-strip-types --test",
+    "bootstrap:runtime": "node --experimental-strip-types scripts/bootstrap-runtime.ts",
+    "validate:runtime": "node --experimental-strip-types scripts/validate-runtime.ts",
+    "demo:turn": "node --experimental-strip-types scripts/demo-turn.ts"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.2"
+  }
+}

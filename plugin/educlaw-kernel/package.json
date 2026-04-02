@@ -1,0 +1,12 @@
+{
+  "name": "@educlaw/openclaw-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Educlaw kernel plugin for OpenClaw.",
+  "openclaw": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  }
+}

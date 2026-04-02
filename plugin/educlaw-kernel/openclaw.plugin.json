@@ -1,0 +1,13 @@
+{
+  "id": "educlaw-kernel",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "runtimeRoot": {
+        "type": "string"
+      }
+    }
+  }
+}
