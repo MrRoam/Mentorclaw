@@ -16,7 +16,7 @@ const learnerState: LearnerState = {
 };
 
 export const createRuntimeFixture = async (): Promise<string> => {
-  const runtimeRoot = await mkdtemp(path.join(os.tmpdir(), "educlaw-runtime-"));
+  const runtimeRoot = await mkdtemp(path.join(os.tmpdir(), "mentorclaw-runtime-"));
   const workspaceRoot = path.join(runtimeRoot, "workspace");
 
   await mkdir(path.join(workspaceRoot, "agent", "learner"), { recursive: true });

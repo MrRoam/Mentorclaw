@@ -1,0 +1,107 @@
+<!doctype html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MentorClaw AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error-container": "#742410",
+              "secondary-container": "#e2e4d6",
+              "tertiary-container": "#fee4c6",
+              background: "#fbf9f5",
+              "surface-container": "#efeee8",
+              "on-secondary": "#f8faec",
+              "on-primary-fixed-variant": "#526040",
+              "surface-container-lowest": "#ffffff",
+              "surface-dim": "#d9dbd2",
+              "primary-fixed-dim": "#cadab2",
+              "primary-container": "#d8e8bf",
+              "on-primary-fixed": "#364326",
+              "surface-container-high": "#e8e9e1",
+              "on-primary-container": "#485637",
+              tertiary: "#6f5c45",
+              "outline-variant": "#b1b3ab",
+              "surface-bright": "#fbf9f5",
+              "on-tertiary-container": "#64523c",
+              "on-surface-variant": "#5d6059",
+              "error-container": "#fe8b70",
+              "secondary-fixed-dim": "#d3d6c8",
+              "on-background": "#31332e",
+              "surface-tint": "#556343",
+              "on-secondary-container": "#505349",
+              "inverse-surface": "#0e0e0c",
+              "surface-container-highest": "#e2e3db",
+              "surface-container-low": "#f5f4ee",
+              surface: "#fbf9f5",
+              "secondary-dim": "#51544a",
+              "on-tertiary-fixed": "#51402b",
+              error: "#9e422c",
+              "on-surface": "#31332e",
+              "inverse-primary": "#ecfdd2",
+              "primary-fixed": "#d8e8bf",
+              "on-secondary-fixed": "#3d4137",
+              "tertiary-fixed": "#fee4c6",
+              "primary-dim": "#495737",
+              "on-tertiary": "#fff7f3",
+              "on-secondary-fixed-variant": "#5a5d52",
+              "surface-variant": "#e2e3db",
+              "on-tertiary-fixed-variant": "#6f5c45",
+              "tertiary-fixed-dim": "#f0d6b9",
+              secondary: "#5d6056",
+              "error-dim": "#5c1202",
+              outline: "#797b75",
+              primary: "#556343",
+              "on-primary": "#edfed3",
+              "on-error": "#fff7f6",
+              "secondary-fixed": "#e2e4d6",
+              "inverse-on-surface": "#9e9d99",
+              "tertiary-dim": "#62503a",
+            },
+            borderRadius: {
+              DEFAULT: "0.125rem",
+              lg: "0.25rem",
+              xl: "0.5rem",
+              full: "0.75rem",
+            },
+            fontFamily: {
+              headline: ["Newsreader", "serif"],
+              body: ["Plus Jakarta Sans", "sans-serif"],
+              label: ["Plus Jakarta Sans", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="bg-background text-on-background">
+    <div id="app">
+      <div class="min-h-screen flex items-center justify-center bg-background px-6">
+        <div class="text-center">
+          <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-on-primary">
+            <span class="material-symbols-outlined">school</span>
+          </div>
+          <h1 class="font-headline text-4xl font-bold text-primary">MentorClaw</h1>
+          <p class="mt-3 text-sm tracking-[0.24em] uppercase text-on-surface-variant">Loading atelier</p>
+        </div>
+      </div>
+    </div>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

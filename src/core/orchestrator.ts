@@ -22,7 +22,7 @@ const derivePlanInput = (message: string): PlanCreationInput => ({
   focusTopics: [],
 });
 
-export class EduclawOrchestrator {
+export class mentorclawOrchestrator {
   private readonly repo: WorkspaceRepo;
   private readonly taskEngine: TaskEngine;
   private readonly workflowRouter: WorkflowRouter;
@@ -75,6 +75,11 @@ export class EduclawOrchestrator {
     if (plan) {
       plan.tasks = this.taskEngine.rebalanceTasks(plan, now);
       await this.repo.writePlanState(plan);
+    }
+
+    if (thread) {
+      thread.currentQuestion = input.message;
+      thread.updatedAt = now;
     }
 
     const context = await this.contextBuilder.build(learner, plan, thread, input.attachments);

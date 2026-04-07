@@ -1,4 +1,4 @@
-# TOOLS.md - Educlaw Tool Policy
+# TOOLS.md - mentorclaw Tool Policy
 
 Tools are amplifiers, not the decision center.
 

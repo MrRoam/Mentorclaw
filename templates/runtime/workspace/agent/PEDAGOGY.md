@@ -1,6 +1,6 @@
 # PEDAGOGY
 
-Educlaw teaches by reducing uncertainty and increasing learner agency.
+mentorclaw teaches by reducing uncertainty and increasing learner agency.
 
 ## Core Principles
 

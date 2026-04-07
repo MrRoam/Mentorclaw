@@ -4,7 +4,7 @@ import type { LearningEvent, TurnOutcome } from "../schemas/models.ts";
 import { WorkspaceRepo } from "../storage/workspace-repo.ts";
 import { nowIso } from "../utils/time.ts";
 
-export interface EduclawSessionBinding {
+export interface mentorclawSessionBinding {
   sessionKey: string;
   planId: string;
   threadId: string;
@@ -14,7 +14,7 @@ export interface EduclawSessionBinding {
 
 interface BindingStoreShape {
   version: number;
-  bindings: Record<string, EduclawSessionBinding>;
+  bindings: Record<string, mentorclawSessionBinding>;
 }
 
 const defaultStore = (): BindingStoreShape => ({
@@ -25,7 +25,7 @@ const defaultStore = (): BindingStoreShape => ({
 export const resolveRuntimeRootFromWorkspace = (workspaceDir?: string, configuredRuntimeRoot?: string): string => {
   if (configuredRuntimeRoot) return configuredRuntimeRoot;
   if (!workspaceDir) {
-    throw new Error("Cannot resolve Educlaw runtime root without workspaceDir or configured runtimeRoot.");
+    throw new Error("Cannot resolve mentorclaw runtime root without workspaceDir or configured runtimeRoot.");
   }
   return path.dirname(workspaceDir);
 };
@@ -34,18 +34,29 @@ export class SessionBindingStore {
   private readonly filePath: string;
 
   constructor(workspaceDir: string) {
-    this.filePath = path.join(workspaceDir, ".openclaw", "educlaw-session-bindings.json");
+    this.filePath = path.join(workspaceDir, ".openclaw", "mentorclaw-session-bindings.json");
   }
 
-  async get(sessionKey?: string): Promise<EduclawSessionBinding | null> {
+  async get(sessionKey?: string): Promise<mentorclawSessionBinding | null> {
     if (!sessionKey) return null;
     const store = await this.readStore();
     return store.bindings[sessionKey] ?? null;
   }
 
-  async set(binding: EduclawSessionBinding): Promise<void> {
+  async set(binding: mentorclawSessionBinding): Promise<void> {
     const store = await this.readStore();
     store.bindings[binding.sessionKey] = binding;
+    await this.writeStore(store);
+  }
+
+  async list(): Promise<mentorclawSessionBinding[]> {
+    const store = await this.readStore();
+    return Object.values(store.bindings).sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  }
+
+  async remove(sessionKey: string): Promise<void> {
+    const store = await this.readStore();
+    delete store.bindings[sessionKey];
     await this.writeStore(store);
   }
 
@@ -73,7 +84,7 @@ const toBulletList = (title: string, items: string[]): string =>
 
 export const renderPromptContext = (outcome: TurnOutcome): string => {
   const sections = [
-    "# Educlaw Kernel Context",
+    "# mentorclaw Kernel Context",
     "",
     `Primary workflow: ${outcome.decision.primary}`,
     ...(outcome.decision.secondary ? [`Secondary workflow: ${outcome.decision.secondary}`] : []),
@@ -97,8 +108,8 @@ export const renderPromptContext = (outcome: TurnOutcome): string => {
   return sections.join("\n");
 };
 
-export const EDUCLAW_STATIC_SYSTEM_APPEND = [
-  "You are operating with the Educlaw education kernel.",
+export const mentorclaw_STATIC_SYSTEM_APPEND = [
+  "You are operating with the mentorclaw education kernel.",
   "Treat the injected kernel context as the current source of truth for workflow, learner state, plan state, and thread state.",
   "Do not invent plan ids, thread ids, or memory updates that are not present in the injected kernel context.",
   "When the workflow is planning, optimize for clarifying goals, constraints, deadlines, and next executable tasks.",
@@ -148,7 +159,7 @@ export const extractLastAssistantText = (messages: unknown[]): string | null => 
   return null;
 };
 
-export const recordAgentEnd = async (repo: WorkspaceRepo, binding: EduclawSessionBinding | null, event: { success: boolean; error?: string; messages: unknown[]; durationMs?: number }): Promise<void> => {
+export const recordAgentEnd = async (repo: WorkspaceRepo, binding: mentorclawSessionBinding | null, event: { success: boolean; error?: string; messages: unknown[]; durationMs?: number }): Promise<void> => {
   if (!binding) return;
 
   const lastAssistantText = extractLastAssistantText(event.messages);

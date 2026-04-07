@@ -1,6 +1,6 @@
-# Educlaw Source
+# mentorclaw Source
 
-This repository contains the Educlaw education kernel. It is intentionally separated from the runtime instance at `/home/jiaxu/.openclaw-educlaw`.
+This repository contains the mentorclaw education kernel. It is intentionally separated from the runtime instance at `/home/jiaxu/.mentorclaw`.
 
 ## Why this repo exists
 
@@ -21,7 +21,7 @@ Those are deployment- and user-specific artifacts, not source code. This repo co
 - `src/storage/`: runtime workspace read/write adapters
 - `src/schemas/`: typed contracts for learner, plan, thread, events, resources
 - `src/resources/`: future-ready resource ingestion pipeline interfaces
-- `plugin/`: OpenClaw plugin package that injects Educlaw context into live turns
+- `plugin/`: OpenClaw plugin package that injects mentorclaw context into live turns
 - `scripts/`: bootstrap and validation scripts for a runtime instance
 - `docs/`: implementation notes and testing guides
 - `tests/`: kernel-level tests
@@ -30,7 +30,7 @@ Those are deployment- and user-specific artifacts, not source code. This repo co
 ## Runtime boundary
 
 - Source repo: this directory
-- Runtime instance: `/home/jiaxu/.openclaw-educlaw`
+- Runtime instance: `/home/jiaxu/.mentorclaw`
 
 The kernel reads and writes the runtime workspace but does not store runtime secrets inside the source repo.
 
@@ -38,6 +38,7 @@ The kernel reads and writes the runtime workspace but does not store runtime sec
 
 - `npm test`
 - `npm run build:plugin`
+- `npm run debug-ui`
 - `node --experimental-strip-types scripts/validate-runtime.ts`
 
 Implementation details and test steps live in `docs/IMPLEMENTATION.md`.

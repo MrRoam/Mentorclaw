@@ -1,6 +1,6 @@
-# Educlaw 协作和 Git 方案
+# mentorclaw 协作和 Git 方案
 
-这份文档是给准备一起做 Educlaw 的同学看的。目标只有两个：
+这份文档是给准备一起做 mentorclaw 的同学看的。目标只有两个：
 
 1. 让前端可以先开工，不被内核开发卡死。
 2. 不把本地账号、日志、记忆、凭证混进 Git。
@@ -48,7 +48,7 @@
 
 ### 你负责的部分
 
-- Educlaw 内核
+- mentorclaw 内核
 - OpenClaw 接入
 - 计划生成逻辑
 - 三层记忆
@@ -70,7 +70,7 @@
 
 - OpenClaw runtime 配置
 - 你的本地飞书/Slack/Google Calendar
-- 你本地的 `.openclaw-educlaw`
+- 你本地的 `.mentorclaw`
 - 任何真实 token
 - 任何真实 learner memory
 
@@ -81,7 +81,7 @@
 建议目标结构：
 
 ```text
-educlaw-source/
+mentorclaw-source/
   apps/
     web/
   src/
@@ -112,7 +112,7 @@ educlaw-source/
 
 这些必须永远放在仓库外面：
 
-- `.openclaw-educlaw/`
+- `.mentorclaw/`
 - 日志
 - sessions
 - credentials
@@ -130,6 +130,7 @@ educlaw-source/
 
 - 这个源码仓
 - `docs/BROWSER_UI_SPEC.md`
+- `docs/UI_STYLE_GUIDE.md`
 - `templates/runtime/workspace/`
 - 后面你补的 API 文档
 - 一份假的 mock 数据
@@ -142,7 +143,7 @@ educlaw-source/
 - 你的 Google Calendar
 - 你的真实测试数据
 
-`templates/runtime/workspace/` 里同步了 Educlaw 的共享架构材料，比如：
+`templates/runtime/workspace/` 里同步了 mentorclaw 的共享架构材料，比如：
 
 - `AGENTS.md`
 - `SOUL.md`

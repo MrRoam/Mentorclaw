@@ -1,9 +1,9 @@
 {
-  "name": "educlaw-source",
+  "name": "mentorclaw-source",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Generic education kernel for Educlaw, separated from the runtime instance.",
+  "description": "Generic education kernel for mentorclaw, separated from the runtime instance.",
   "engines": {
     "node": ">=24"
   },
@@ -11,6 +11,11 @@
     "check": "node --experimental-strip-types --eval \"import('./src/index.ts')\"",
     "build:plugin": "node scripts/build-plugin.mjs",
     "test": "node --experimental-strip-types --test",
+    "debug-ui": "node --experimental-strip-types scripts/debug-ui.ts",
+    "debug-ui:start": "node --experimental-strip-types scripts/debug-ui-daemon.ts start",
+    "debug-ui:stop": "node --experimental-strip-types scripts/debug-ui-daemon.ts stop",
+    "debug-ui:restart": "node --experimental-strip-types scripts/debug-ui-daemon.ts restart",
+    "debug-ui:status": "node --experimental-strip-types scripts/debug-ui-daemon.ts status",
     "bootstrap:runtime": "node --experimental-strip-types scripts/bootstrap-runtime.ts",
     "validate:runtime": "node --experimental-strip-types scripts/validate-runtime.ts",
     "demo:turn": "node --experimental-strip-types scripts/demo-turn.ts"

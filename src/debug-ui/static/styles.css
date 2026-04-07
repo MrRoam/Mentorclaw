@@ -1,0 +1,129 @@
+html, body, #app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 350, "GRAD" 0, "opsz" 24;
+}
+
+.font-editorial,
+.serif-text {
+  font-family: "Newsreader", serif;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(177, 179, 171, 0.45);
+  border-radius: 999px;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.paper-input {
+  background-color: #ffffff;
+  border: 1px solid #e2e3db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease;
+}
+
+.paper-input:focus-within {
+  border-color: #556343;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.learning-grid {
+  background-size: 100% 48px;
+  background-image: linear-gradient(to bottom, #efeee8 1px, transparent 1px);
+}
+
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.archive-item:not(:last-child) {
+  border-bottom: 1px solid rgba(177, 179, 171, 0.2);
+}
+
+.flash-toast {
+  position: fixed;
+  right: 24px;
+  top: 24px;
+  z-index: 100;
+  max-width: 420px;
+}
+
+.code-preview {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.project-workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 32px;
+  align-items: start;
+}
+
+.project-right-rail {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.chat-feed {
+  min-height: 420px;
+  max-height: calc(100vh - 360px);
+  overflow-y: auto;
+}
+
+.chat-bubble {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 1180px) {
+  .project-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-right-rail {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .chat-feed {
+    min-height: 360px;
+    max-height: none;
+  }
+}

@@ -1,6 +1,6 @@
 # EVALUATION_POLICY
 
-Educlaw evaluates mastery conservatively.
+mentorclaw evaluates mastery conservatively.
 
 ## Mastery States
 

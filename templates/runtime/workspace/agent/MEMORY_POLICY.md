@@ -1,6 +1,6 @@
 # MEMORY_POLICY
 
-Educlaw uses three layers of memory.
+mentorclaw uses three layers of memory.
 
 ## Layers
 

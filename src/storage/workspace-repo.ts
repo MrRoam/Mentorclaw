@@ -164,8 +164,7 @@ export class WorkspaceRepo {
   }
 
   async createPlan(input: PlanCreationInput, now: string = nowIso()): Promise<PlanState> {
-    const planId = makePlanId(input.title, now);
-    const planDir = path.join(this.plansDir, planId);
+    const { planId, planDir } = await this.reservePlanDirectory(input.title, now);
     await mkdir(path.join(planDir, "threads"), { recursive: true });
 
     const tasks: TaskItem[] = input.goals.map((goal, index) => ({
@@ -460,5 +459,26 @@ export class WorkspaceRepo {
     } catch {
       await writeFile(filePath, "", "utf8");
     }
+  }
+
+  private async reservePlanDirectory(title: string, now: string): Promise<{ planId: string; planDir: string }> {
+    const basePlanId = makePlanId(title, now);
+
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const suffix = attempt === 0 ? "" : `-${String(attempt + 1).padStart(2, "0")}`;
+      const planId = `${basePlanId}${suffix}`;
+      const planDir = path.join(this.plansDir, planId);
+
+      try {
+        await mkdir(planDir, { recursive: false });
+        return { planId, planDir };
+      } catch (error) {
+        const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+        if (code === "EEXIST") continue;
+        throw error;
+      }
+    }
+
+    throw new Error(`Failed to allocate a unique plan id for title "${title}".`);
   }
 }

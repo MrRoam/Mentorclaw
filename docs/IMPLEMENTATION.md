@@ -1,23 +1,23 @@
-# Educlaw Implementation Notes
+# mentorclaw Implementation Notes
 
-This document explains what is implemented in the current Educlaw source repo, how the OpenClaw adapter works, what has been verified, and how to test it safely.
+This document explains what is implemented in the current mentorclaw source repo, how the OpenClaw adapter works, what has been verified, and how to test it safely.
 
 ## Current Status
 
-Educlaw now has two layers:
+mentorclaw now has two layers:
 
-- `source repo`: `/home/jiaxu/educlaw-source`
-- `runtime instance`: `/home/jiaxu/.openclaw-educlaw`
+- `source repo`: `/home/jiaxu/mentorclaw-source`
+- `runtime instance`: `/home/jiaxu/.mentorclaw`
 
 The source repo contains the generic education kernel and the OpenClaw plugin package. The runtime instance contains live workspace state, logs, credentials, channel bindings, device pairings, and session data.
 
 The OpenClaw integration is now live at the plugin level:
 
-- plugin id: `educlaw-kernel`
+- plugin id: `mentorclaw-kernel`
 - hook: `before_prompt_build`
 - hook: `agent_end`
 
-That means Educlaw is no longer only a demo script. It is attached to OpenClaw's real turn pipeline.
+That means mentorclaw is no longer only a demo script. It is attached to OpenClaw's real turn pipeline.
 
 ## What Has Been Implemented
 
@@ -100,17 +100,17 @@ These are interface-level only right now. The full online ingestion pipeline is 
 
 The adapter layer lives in two places:
 
-- plugin package: `plugin/educlaw-kernel/`
+- plugin package: `plugin/mentorclaw-kernel/`
 - adapter helpers: `src/integration/openclaw-adapter.ts`
 
 What it does:
 
 - `before_prompt_build`
-  - resolves the Educlaw runtime root
+  - resolves the mentorclaw runtime root
   - loads the last plan/thread bound to the current OpenClaw session
-  - runs `EduclawOrchestrator.handleTurn(...)`
-  - injects the resulting learner/plan/thread context into the prompt
-  - writes the session binding back to `workspace/.openclaw/educlaw-session-bindings.json`
+  - runs `mentorclawOrchestrator.handleTurn(...)`
+  - injects the resulting learner/plan/thread context into system-prompt space
+  - writes the session binding back to `workspace/.openclaw/mentorclaw-session-bindings.json`
 - `agent_end`
   - reads the final assistant reply from the turn payload
   - appends an `assistant_reply_recorded` or `assistant_reply_failed` event to the thread
@@ -122,25 +122,44 @@ This adapter is packaged as a real OpenClaw plugin bundle, not just a TypeScript
 
 The plugin package is now shaped the way OpenClaw expects:
 
-- `plugin/educlaw-kernel/openclaw.plugin.json`
-- `plugin/educlaw-kernel/package.json`
-- `plugin/educlaw-kernel/dist/index.js`
+- `plugin/mentorclaw-kernel/openclaw.plugin.json`
+- `plugin/mentorclaw-kernel/package.json`
+- `plugin/mentorclaw-kernel/dist/index.js`
 
-The JS bundle is built from `plugin/educlaw-kernel/index.ts` via:
+The JS bundle is built from `plugin/mentorclaw-kernel/index.ts` via:
 
 - `scripts/build-plugin.mjs`
 - `npm run build:plugin`
 
 This packaging step was necessary because OpenClaw does not load raw TypeScript plugin entries directly in this setup.
 
+### 7. Local Debug UI
+
+The source repo now also includes a local browser-based debug UI:
+
+- service layer: `src/debug-ui/service.ts`
+- local server entry: `scripts/debug-ui.ts`
+- static UI shell: `src/debug-ui/static/`
+
+What it does:
+
+- reads learner / plan / thread state directly from the runtime workspace
+- reads and writes `workspace/.openclaw/mentorclaw-session-bindings.json`
+- shows the hierarchy as `plan -> thread`, with bound `sessionKey` values visible on each thread
+- can create plans and threads without inventing a second state store
+- can run a local user turn through `mentorclawOrchestrator.handleTurn(...)`
+- can record an assistant reply through the same `recordAgentEnd(...)` write-back path used by the plugin
+
+This is intentionally a local debugging workstation, not a second product runtime.
+
 ## How the Logic Works
 
 For each user turn:
 
 1. OpenClaw receives the message.
-2. `before_prompt_build` runs inside the `educlaw-kernel` plugin.
-3. Educlaw loads learner state and tries to recover the active plan/thread for the current session.
-4. Educlaw routes the turn into a workflow:
+2. `before_prompt_build` runs inside the `mentorclaw-kernel` plugin.
+3. mentorclaw loads learner state and tries to recover the active plan/thread for the current session.
+4. mentorclaw routes the turn into a workflow:
    - `planning`
    - `tutoring`
    - `evaluation`
@@ -148,7 +167,7 @@ For each user turn:
    - `replanning`
 5. If needed, it creates a new plan and thread.
 6. It rebalances tasks and computes proactive actions.
-7. It injects the kernel context into the model prompt.
+7. It injects the kernel context into system-prompt space, not the visible user message body.
 8. The model answers.
 9. `agent_end` runs and records the final assistant reply back into thread memory.
 
@@ -173,7 +192,7 @@ It does not yet do advanced evidence extraction from attachments, tools, or exte
 
 Using the current runtime config, OpenClaw reports:
 
-- plugin id `educlaw-kernel` is `loaded`
+- plugin id `mentorclaw-kernel` is `loaded`
 - typed hooks `before_prompt_build` and `agent_end` are registered
 - prompt injection policy is enabled
 
@@ -181,11 +200,11 @@ Using the current runtime config, OpenClaw reports:
 
 A real smoke turn was executed against OpenClaw and confirmed the following path:
 
-- Educlaw created a plan
-- Educlaw created a thread
-- Educlaw wrote a session binding
-- Educlaw recorded a `turn_processed` event
-- Educlaw recorded an `assistant_reply_recorded` event
+- mentorclaw created a plan
+- mentorclaw created a thread
+- mentorclaw wrote a session binding
+- mentorclaw recorded a `turn_processed` event
+- mentorclaw recorded an `assistant_reply_recorded` event
 
 The temporary plan generated during that smoke test was removed afterward so the runtime stays clean.
 
@@ -203,7 +222,7 @@ These are the main gaps:
 
 So the kernel and adapter are real, but the product is not yet multi-user safe.
 
-## Can Educlaw Be Tested Now
+## Can mentorclaw Be Tested Now
 
 Yes, but there are two different meanings of "test".
 
@@ -214,7 +233,7 @@ This is ready now.
 Use:
 
 ```bash
-cd /home/jiaxu/educlaw-source
+cd /home/jiaxu/mentorclaw-source
 npm test
 node --experimental-strip-types scripts/validate-runtime.ts
 npm run build:plugin
@@ -223,11 +242,11 @@ npm run build:plugin
 You can also verify plugin load state:
 
 ```bash
-export OPENCLAW_STATE_DIR=/home/jiaxu/.openclaw-educlaw
-export OPENCLAW_CONFIG_PATH=/home/jiaxu/.openclaw-educlaw/openclaw.json
+export OPENCLAW_STATE_DIR=/home/jiaxu/.mentorclaw
+export OPENCLAW_CONFIG_PATH=/home/jiaxu/.mentorclaw/openclaw.json
 /home/jiaxu/.nvm/versions/node/v24.14.0/bin/node \
   /home/jiaxu/.nvm/versions/node/v24.14.0/lib/node_modules/openclaw/dist/index.js \
-  plugins inspect educlaw-kernel
+  plugins inspect mentorclaw-kernel
 ```
 
 Expected result:
@@ -246,7 +265,7 @@ What you should verify during a manual test:
 - a new learner goal triggers `planning`
 - a plan directory is created under `workspace/agent/plans/`
 - a thread directory is created under that plan
-- `workspace/.openclaw/educlaw-session-bindings.json` is updated
+- `workspace/.openclaw/mentorclaw-session-bindings.json` is updated
 - thread `events.jsonl` records both the turn and the assistant reply
 
 However, this is still single-tenant. Multiple external testers on the same runtime will contaminate each other's memory and connectors.

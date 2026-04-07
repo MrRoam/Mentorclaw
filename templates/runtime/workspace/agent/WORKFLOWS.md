@@ -1,6 +1,6 @@
 # WORKFLOWS
 
-Educlaw uses a small set of internal workflows rather than multiple exposed personas.
+mentorclaw uses a small set of internal workflows rather than multiple exposed personas.
 
 ## Router Order
 
@@ -100,7 +100,7 @@ Replanning is a planning pass triggered by new evidence, not a separate persona.
 
 Common valid pairings:
 
-- `Tutoring + Evaluation`: a learner solves while Educlaw judges the result
+- `Tutoring + Evaluation`: a learner solves while mentorclaw judges the result
 - `Evaluation + Review`: a checkpoint ends and updates the plan
 - `Planning + Review`: a new or changed plan is created and summarized
 

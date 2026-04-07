@@ -3,8 +3,8 @@ import path from "node:path";
 import { build } from "esbuild";
 
 const rootDir = path.resolve(import.meta.dirname, "..");
-const entryPoint = path.join(rootDir, "plugin", "educlaw-kernel", "index.ts");
-const outdir = path.join(rootDir, "plugin", "educlaw-kernel", "dist");
+const entryPoint = path.join(rootDir, "plugin", "mentorclaw-kernel", "index.ts");
+const outdir = path.join(rootDir, "plugin", "mentorclaw-kernel", "dist");
 
 await mkdir(outdir, { recursive: true });
 
@@ -19,4 +19,4 @@ await build({
   external: ["openclaw", "openclaw/*"],
 });
 
-console.log("Built Educlaw OpenClaw plugin bundle.");
+console.log("Built mentorclaw OpenClaw plugin bundle.");

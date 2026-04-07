@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { EduclawOrchestrator } from "../src/core/orchestrator.ts";
+import { mentorclawOrchestrator } from "../src/core/orchestrator.ts";
 import { WorkspaceRepo } from "../src/storage/workspace-repo.ts";
 import { createRuntimeFixture } from "./helpers.ts";
 
-describe("EduclawOrchestrator", () => {
+describe("mentorclawOrchestrator", () => {
   test("creates a plan and thread when a new goal arrives", async () => {
     const runtimeRoot = await createRuntimeFixture();
     const repo = new WorkspaceRepo(runtimeRoot);
-    const orchestrator = new EduclawOrchestrator(repo);
+    const orchestrator = new mentorclawOrchestrator(repo);
 
     const outcome = await orchestrator.handleTurn({
       message: "我两周后有考试，帮我制定一个学习计划",

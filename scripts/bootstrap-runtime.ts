@@ -1,9 +1,10 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { WorkspaceRepo } from "../src/storage/workspace-repo.ts";
+import { resolveMentorclawRuntimeRoot } from "../src/utils/runtime-root.ts";
 import { nowIso } from "../src/utils/time.ts";
 
-const runtimeRoot = process.env.EDUCLAW_RUNTIME_ROOT ?? "/home/jiaxu/.openclaw-educlaw";
+const runtimeRoot = resolveMentorclawRuntimeRoot();
 
 const writeIfMissing = async (filePath: string, content: string): Promise<void> => {
   try {

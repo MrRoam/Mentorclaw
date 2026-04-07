@@ -1,5 +1,5 @@
 {
-  "id": "educlaw-kernel",
+  "id": "mentorclaw-kernel",
   "version": "0.1.0",
   "configSchema": {
     "type": "object",

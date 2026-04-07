@@ -1,10 +1,10 @@
 services:
-  educlaw-kernel:
+  mentorclaw-kernel:
     image: node:24-bookworm
     working_dir: /app
     command: ["npm", "run", "validate:runtime"]
     environment:
-      EDUCLAW_RUNTIME_ROOT: /runtime
+      mentorclaw_RUNTIME_ROOT: /runtime
     volumes:
       - ./:/app:ro
       - /path/to/runtime-instance:/runtime

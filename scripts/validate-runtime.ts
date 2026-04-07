@@ -1,6 +1,7 @@
 import { WorkspaceRepo } from "../src/storage/workspace-repo.ts";
+import { resolveMentorclawRuntimeRoot } from "../src/utils/runtime-root.ts";
 
-const runtimeRoot = process.env.EDUCLAW_RUNTIME_ROOT ?? "/home/jiaxu/.openclaw-educlaw";
+const runtimeRoot = resolveMentorclawRuntimeRoot();
 
 const main = async (): Promise<void> => {
   const repo = new WorkspaceRepo(runtimeRoot);
