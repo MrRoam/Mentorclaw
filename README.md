@@ -1,6 +1,6 @@
 # mentorclaw Source
 
-This repository contains the mentorclaw education kernel. It is intentionally separated from the runtime instance at `/home/jiaxu/.mentorclaw`.
+This repository contains the mentorclaw education kernel. It is intentionally separated from the runtime instance.
 
 ## Why this repo exists
 
@@ -30,7 +30,13 @@ Those are deployment- and user-specific artifacts, not source code. This repo co
 ## Runtime boundary
 
 - Source repo: this directory
-- Runtime instance: `/home/jiaxu/.mentorclaw`
+- Runtime instance: resolved from the local mentorclaw runtime root
+
+By default the resolver checks these locations in order:
+
+- `~/.mentorclaw`
+- `~/.openclaw-mentorclaw`
+- `~/.openclaw-educlaw`
 
 The kernel reads and writes the runtime workspace but does not store runtime secrets inside the source repo.
 
@@ -39,6 +45,9 @@ The kernel reads and writes the runtime workspace but does not store runtime sec
 - `npm test`
 - `npm run build:plugin`
 - `npm run debug-ui`
+- `npm run sync:buaa:byxt -- --username 24182104 --password YOUR_PASSWORD`
+- `npm run sync:buaa:msa -- --token YOUR_TOKEN --account 24182104 --course-id 12345`
 - `node --experimental-strip-types scripts/validate-runtime.ts`
 
 Implementation details and test steps live in `docs/IMPLEMENTATION.md`.
+BUAA sync details live in `docs/BUAA_SYNC.md`.

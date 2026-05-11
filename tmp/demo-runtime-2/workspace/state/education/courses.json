@@ -1,0 +1,20 @@
+[
+  {
+    "id": "course-2026-spring:demo-ai-intro-post-class:ai-intro-2026-spring",
+    "stableKey": "2026-spring:demo-ai-intro-post-class:ai-intro-2026-spring",
+    "title": "人工智能导论",
+    "teacher": "刘洋",
+    "term": "2026 Spring",
+    "sourceType": "demo-ai-intro-post-class",
+    "sourceCourseId": "AI-INTRO-2026-SPRING",
+    "status": "active",
+    "displayColor": "#556343",
+    "metadata": {
+      "demoScenario": "post-class-review",
+      "stableKeyHints": [],
+      "sourceAliases": {
+        "demo-ai-intro-post-class": "AI-INTRO-2026-SPRING"
+      }
+    }
+  }
+]

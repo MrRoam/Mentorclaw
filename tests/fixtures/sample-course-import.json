@@ -1,0 +1,96 @@
+{
+  "sourceType": "fixture-import",
+  "connection": {
+    "sourceType": "fixture-import",
+    "accountLabel": "sample-learner",
+    "status": "connected",
+    "metadata": {
+      "description": "Sample import used to verify the schedule and storage pipeline."
+    },
+    "lastSyncedAt": "2026-04-09T12:00:00.000Z"
+  },
+  "schedulePreferences": {
+    "showTimetableInSchedule": true,
+    "scheduleDefaultView": "week"
+  },
+  "courses": [
+    {
+      "sourceCourseId": "LA-2026-01",
+      "title": "Linear Algebra",
+      "teacher": "Prof. Zhao",
+      "term": "2026 Spring",
+      "displayColor": "#4d7de0",
+      "items": [
+        {
+          "sourceItemId": "LA-CLASS-001",
+          "type": "class",
+          "title": "Linear Algebra",
+          "teacher": "Prof. Zhao",
+          "startAt": "2026-04-13T08:00:00.000+08:00",
+          "endAt": "2026-04-13T09:35:00.000+08:00",
+          "location": "J3-201",
+          "metaJson": {
+            "weekday": 1,
+            "weeks": "1-16"
+          },
+          "lastSyncedAt": "2026-04-09T12:00:00.000Z"
+        },
+        {
+          "sourceItemId": "LA-REPLAY-008",
+          "type": "replay",
+          "title": "Lecture 08 Replay",
+          "teacher": "Prof. Zhao",
+          "startAt": "2026-04-12T19:00:00.000+08:00",
+          "endAt": "2026-04-12T20:35:00.000+08:00",
+          "body": "Vector spaces and linear transformations.",
+          "metaJson": {
+            "replayUrl": "https://example.com/replay/la-08"
+          },
+          "lastSyncedAt": "2026-04-09T12:00:00.000Z"
+        }
+      ],
+      "resources": [
+        {
+          "sourceResourceId": "LA-REPLAY-008-SRT",
+          "linkedItemSourceId": "LA-REPLAY-008",
+          "resourceType": "subtitle",
+          "title": "Lecture 08 Subtitle",
+          "url": "https://example.com/replay/la-08/subtitle.srt",
+          "metaJson": {
+            "language": "zh-CN"
+          }
+        },
+        {
+          "sourceResourceId": "LA-REPLAY-008-PPTX",
+          "linkedItemSourceId": "LA-REPLAY-008",
+          "resourceType": "pptx",
+          "title": "Lecture 08 Slides",
+          "url": "https://example.com/replay/la-08/slides.pptx"
+        }
+      ]
+    },
+    {
+      "sourceCourseId": "PHYS-2026-01",
+      "title": "College Physics",
+      "teacher": "Prof. Liu",
+      "term": "2026 Spring",
+      "displayColor": "#7b806f",
+      "items": [
+        {
+          "sourceItemId": "PHYS-CLASS-001",
+          "type": "class",
+          "title": "College Physics",
+          "teacher": "Prof. Liu",
+          "startAt": "2026-04-15T10:00:00.000+08:00",
+          "endAt": "2026-04-15T11:35:00.000+08:00",
+          "location": "Main Building 101",
+          "metaJson": {
+            "weekday": 3,
+            "weeks": "1-16"
+          },
+          "lastSyncedAt": "2026-04-09T12:00:00.000Z"
+        }
+      ]
+    }
+  ]
+}

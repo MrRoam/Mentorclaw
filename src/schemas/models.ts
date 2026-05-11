@@ -1,10 +1,6 @@
-export type WorkflowType =
-  | "planning"
-  | "tutoring"
-  | "evaluation"
-  | "review"
-  | "replanning";
+export type WorkflowType = "planning" | "tutoring" | "review";
 
+export type ProjectStatus = "draft" | "active" | "paused" | "completed" | "archived";
 export type PlanStatus = "draft" | "active" | "paused" | "completed" | "dropped";
 export type ThreadStatus = "active" | "archived" | "closed";
 export type TaskStatus = "todo" | "in_progress" | "done" | "blocked";
@@ -15,7 +11,7 @@ export type EvidenceType =
   | "application"
   | "transfer"
   | "retention";
-export type PromotionTarget = "none" | "thread" | "plan" | "learner";
+export type PromotionTarget = "none" | "project" | "plan" | "learner" | "memory" | "thread";
 
 export interface RuntimePaths {
   runtimeRoot: string;
@@ -40,6 +36,13 @@ export interface LearnerSummary {
   globalGoals: string;
   misconceptions: string[];
   state: LearnerState;
+  memory: string;
+}
+
+export interface GlobalMemory {
+  version: number;
+  updatedAt: string | null;
+  content: string;
 }
 
 export interface MasteryRecord {
@@ -76,13 +79,110 @@ export interface ResourceRef {
   kind: "document" | "video" | "question_bank" | "web" | "user_upload" | "rubric" | "other";
   sourceType: string;
   uri: string;
-  binding: "learner" | "plan" | "thread" | "curriculum";
+  binding: "learner" | "plan" | "project" | "thread" | "curriculum";
   bindingId?: string;
   trustScore: number;
   relevanceScore: number;
   rights: "unknown" | "link_only" | "quote_only" | "cache_allowed";
 }
 
+export interface ProjectScope {
+  type: "course" | "general";
+  courseIds: string[];
+}
+
+export interface ProjectGoal {
+  summary: string;
+  targetOutcome: string[];
+  constraints: string[];
+  successDefinition: string[];
+}
+
+export interface ProjectExecution {
+  mode: WorkflowType;
+  nextAction: string | null;
+  tasks: TaskItem[];
+  milestones: Milestone[];
+}
+
+export interface ProjectMemory {
+  misconceptions: string[];
+  durableNotes: string[];
+}
+
+export interface ProjectResources {
+  pinnedResourceIds: string[];
+  preferredTypes: string[];
+  notes: string[];
+}
+
+export interface ProjectState {
+  projectId: string;
+  title: string;
+  status: ProjectStatus;
+  createdAt: string | null;
+  updatedAt: string | null;
+  scope: ProjectScope;
+  goal: ProjectGoal;
+  execution: ProjectExecution;
+  memory: ProjectMemory;
+  resources: ProjectResources;
+  summary: string;
+}
+
+export interface CronScheduleRule {
+  kind: "manual" | "after_course_class" | "daily_time";
+  timeOfDay?: string;
+  timezone?: string;
+  offsetDays?: number;
+  source?: "course_schedule";
+}
+
+export interface CronDefinition {
+  cronId: string;
+  title: string;
+  enabled: boolean;
+  schedule: string;
+  scheduleRule?: CronScheduleRule;
+  projectId?: string | null;
+  courseIds?: string[];
+  prompt: string;
+  updatedAt: string | null;
+}
+
+export interface CronCreationInput {
+  title: string;
+  schedule: string;
+  scheduleRule?: CronScheduleRule;
+  prompt: string;
+  enabled?: boolean;
+  projectId?: string | null;
+  courseIds?: string[];
+}
+
+export interface CronRunRecord {
+  id: string;
+  cronId: string;
+  kind?: "created" | "updated" | "manual_run" | "scheduled_run" | "follow_up";
+  triggeredAt: string;
+  scheduledFor: string;
+  courseItemId?: string | null;
+  projectId?: string | null;
+  courseIds: string[];
+  status: "completed" | "skipped" | "failed";
+  reason?: string | null;
+  userMessage?: string | null;
+  assistantReply?: string | null;
+  scheduleExplanation?: string | null;
+  summaryTitle?: string | null;
+  summaryPoints?: string[];
+  reviewQuestions?: string[];
+  nextActions?: string[];
+  output?: string | null;
+}
+
+// Legacy compatibility type kept so old modules can keep compiling while
+// the runtime moves to project-centric state.
 export interface PlanState {
   planId: string;
   title: string;
@@ -124,9 +224,10 @@ export interface ThreadState {
 
 export interface LearningEvent {
   ts: string;
-  level: "thread" | "plan" | "learner";
+  level: "thread" | "plan" | "project" | "learner" | "memory";
   type: string;
   planId?: string;
+  projectId?: string;
   threadId?: string;
   topic?: string;
   evidence: string[];
@@ -147,9 +248,11 @@ export interface AssessmentResult {
 export interface TurnInput {
   message: string;
   now?: string;
+  projectId?: string | null;
   planId?: string | null;
   threadId?: string | null;
   attachments?: ResourceRef[];
+  courseIds?: string[];
   signals?: {
     submittedWork?: boolean;
     requestReview?: boolean;
@@ -161,6 +264,7 @@ export interface WorkflowDecision {
   primary: WorkflowType;
   secondary?: WorkflowType;
   reasons: string[];
+  shouldCreateProject: boolean;
   shouldCreatePlan: boolean;
   shouldCreateThread: boolean;
 }
@@ -171,16 +275,18 @@ export interface ContextPacket {
     soul: string;
     tools: string;
   };
-  learnerSummary: string[];
-  planSummary: string[];
-  threadSummary: string[];
+  memorySummary: string[];
+  projectSummary: string[];
   resourceSummary: string[];
+  locatorSummary: string[];
+  locators: ResourceLocatorMatch[];
   readSet: string[];
 }
 
 export interface ProactiveAction {
-  kind: "remind_due_task" | "prompt_review" | "suggest_replan" | "trigger_assessment";
+  kind: "remind_due_task" | "prompt_review" | "suggest_replan";
   reason: string;
+  projectId?: string;
   planId?: string;
   taskId?: string;
 }
@@ -189,10 +295,46 @@ export interface TurnOutcome {
   decision: WorkflowDecision;
   context: ContextPacket;
   learner: LearnerSummary;
+  project?: ProjectState;
   plan?: PlanState;
-  thread?: ThreadState;
   proactiveActions: ProactiveAction[];
   events: LearningEvent[];
+}
+
+export interface TimestampLocator {
+  kind: "timestamp";
+  startSec: number;
+  endSec: number;
+}
+
+export interface PageLocator {
+  kind: "page";
+  page: number;
+}
+
+export type ResourceLocator = TimestampLocator | PageLocator;
+
+export interface ResourceLocatorMatch {
+  resourceId: string;
+  resourceType: string;
+  title: string;
+  courseId: string;
+  linkedItemId: string | null;
+  locator: ResourceLocator;
+  snippet: string;
+  score: number;
+  localPath: string | null;
+  url: string;
+}
+
+export interface ProjectCreationInput {
+  title: string;
+  summary: string;
+  targetOutcome: string[];
+  constraints: string[];
+  successDefinition: string[];
+  goals: string[];
+  courseIds?: string[];
 }
 
 export interface PlanCreationInput {

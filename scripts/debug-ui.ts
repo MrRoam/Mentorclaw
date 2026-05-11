@@ -4,12 +4,21 @@ import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import {
+  type AddCourseResourceRequest,
+  type AddManualScheduleItemRequest,
+  type BuaaLoginRequest,
+  type CronMessageRequest,
   DebugUiService,
   type BindSessionRequest,
+  type CreateCronRequest,
   type CreatePlanRequest,
   type CreateThreadRequest,
   type HandleTurnRequest,
   type RecordAssistantReplyRequest,
+  type UpdateCronRequest,
+  type UpdateRuntimeConfigRequest,
+  type UpdateScheduleItemRequest,
+  type UploadCourseResourceRequest,
 } from "../src/debug-ui/service.ts";
 import { resolveMentorclawRuntimeRoot } from "../src/utils/runtime-root.ts";
 
@@ -91,9 +100,36 @@ const send = (response: import("node:http").ServerResponse, result: { status: nu
   response.end(result.body);
 };
 
+const sendBuffer = (
+  response: import("node:http").ServerResponse,
+  result: { status: number; headers: Record<string, string>; body: Buffer },
+): void => {
+  response.writeHead(result.status, result.headers);
+  response.end(result.body);
+};
+
 const args = parseArgs(process.argv.slice(2));
 const service = new DebugUiService(args.runtimeRoot);
 const staticRoot = path.join(import.meta.dirname, "..", "src", "debug-ui", "static");
+let cronTickRunning = false;
+
+const runCronTick = async (): Promise<void> => {
+  if (cronTickRunning) return;
+  cronTickRunning = true;
+  try {
+    const summary = await service.executeDueCrons();
+    if (summary.dueCount) {
+      console.log(
+        `[mentorclaw-debug-ui] cron tick due=${summary.dueCount} completed=${summary.completed} skipped=${summary.skipped} failed=${summary.failed}`,
+      );
+    }
+  } catch (error) {
+    console.warn(`[mentorclaw-debug-ui] cron tick failed: ${error instanceof Error ? error.message : String(error)}`);
+  } finally {
+    cronTickRunning = false;
+  }
+};
+const cronTimer = setInterval(runCronTick, 60_000);
 
 const staticFiles = new Map<string, { fileName: string; contentType: string }>([
   ["/", { fileName: "index.html", contentType: "text/html; charset=utf-8" }],
@@ -129,6 +165,22 @@ const server = createServer(async (request, response) => {
       return;
     }
 
+    if (request.method === "GET" && url.pathname === "/api/resource") {
+      const resourceId = url.searchParams.get("resourceId");
+      if (!resourceId) throw new Error("resourceId is required.");
+      const file = await service.readResourceFile(resourceId);
+      sendBuffer(response, {
+        status: 200,
+        headers: {
+          "Content-Type": file.contentType,
+          "Content-Disposition": `inline; filename="${encodeURIComponent(file.fileName)}"`,
+          "Cache-Control": "no-store",
+        },
+        body: file.content,
+      });
+      return;
+    }
+
     if (request.method === "POST" && url.pathname === "/api/plans") {
       const body = (await readJsonBody(request)) as CreatePlanRequest;
       send(response, json(200, await service.createPlan(body)));
@@ -145,6 +197,87 @@ const server = createServer(async (request, response) => {
     if (request.method === "POST" && url.pathname === "/api/threads") {
       const body = (await readJsonBody(request)) as CreateThreadRequest;
       send(response, json(200, await service.createThread(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/crons") {
+      const body = (await readJsonBody(request)) as CreateCronRequest;
+      send(response, json(200, await service.createCron(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/crons/update") {
+      const body = (await readJsonBody(request)) as UpdateCronRequest;
+      send(response, json(200, await service.updateCron(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/crons/delete") {
+      const body = (await readJsonBody(request)) as { cronId?: string };
+      if (!body.cronId) throw new Error("cronId is required.");
+      send(response, json(200, await service.deleteCron(body.cronId)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/crons/run") {
+      const body = (await readJsonBody(request)) as { cronId?: string };
+      if (!body.cronId) throw new Error("cronId is required.");
+      send(response, json(200, await service.runCronNow(body.cronId)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/crons/message") {
+      const body = (await readJsonBody(request)) as CronMessageRequest;
+      send(response, json(200, await service.sendCronMessage(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/crons/execute-due") {
+      send(response, json(200, await service.executeDueCrons()));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/education/resources") {
+      const body = (await readJsonBody(request)) as AddCourseResourceRequest;
+      send(response, json(200, await service.addCourseResource(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/education/resources/upload") {
+      const body = (await readJsonBody(request)) as UploadCourseResourceRequest;
+      send(response, json(200, await service.uploadCourseResource(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/education/buaa/login") {
+      const body = (await readJsonBody(request)) as BuaaLoginRequest;
+      send(response, json(200, await service.connectBuaaAccount(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/education/buaa/sync-course-resources") {
+      const body = (await readJsonBody(request)) as { courseId?: string };
+      if (!body.courseId) throw new Error("courseId is required.");
+      send(response, json(200, await service.syncBuaaCourseResources(body.courseId)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/education/schedule-items") {
+      const body = (await readJsonBody(request)) as AddManualScheduleItemRequest;
+      send(response, json(200, await service.addManualScheduleItem(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/education/schedule-items/update") {
+      const body = (await readJsonBody(request)) as UpdateScheduleItemRequest;
+      send(response, json(200, await service.updateScheduleItem(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/education/schedule-items/delete") {
+      const body = (await readJsonBody(request)) as { itemId?: string };
+      if (!body.itemId) throw new Error("itemId is required.");
+      send(response, json(200, await service.deleteScheduleItem(body.itemId)));
       return;
     }
 
@@ -173,6 +306,21 @@ const server = createServer(async (request, response) => {
       return;
     }
 
+    if (request.method === "POST" && url.pathname === "/api/config") {
+      const body = (await readJsonBody(request)) as UpdateRuntimeConfigRequest;
+      send(response, json(200, await service.updateRuntimeConfig(body)));
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/education/schedule-preferences") {
+      const body = (await readJsonBody(request)) as {
+        showTimetableInSchedule?: boolean;
+        scheduleDefaultView?: "week" | "month";
+      };
+      send(response, json(200, await service.updateSchedulePreferences(body)));
+      return;
+    }
+
     send(response, json(404, { error: `Route not found: ${request.method} ${url.pathname}` }));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -186,6 +334,7 @@ server.listen(args.port, args.host, async () => {
   console.log(`[mentorclaw-debug-ui] runtimeRoot=${args.runtimeRoot}`);
   console.log(`[mentorclaw-debug-ui] workspace=${service.repo.paths.workspaceRoot}`);
   console.log(`[mentorclaw-debug-ui] listening at ${url}`);
+  runCronTick();
   if (!validation.valid) {
     console.log("[mentorclaw-debug-ui] runtime validation errors:");
     for (const entry of validation.errors) console.log(`- ${entry}`);
@@ -194,9 +343,11 @@ server.listen(args.port, args.host, async () => {
 });
 
 process.on("SIGINT", () => {
+  clearInterval(cronTimer);
   server.close(() => process.exit(0));
 });
 
 process.on("SIGTERM", () => {
+  clearInterval(cronTimer);
   server.close(() => process.exit(0));
 });

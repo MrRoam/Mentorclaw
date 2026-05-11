@@ -1,0 +1,24 @@
+\contentsline {section}{\numberline {1}引言}{1}{section.1}%
+\contentsline {subsection}{\numberline {1.1}研究背景与问题提出}{1}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}现有方法分析}{1}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}本文思路与主要内容}{2}{subsection.1.3}%
+\contentsline {section}{\numberline {2}梦拓龙虾总体设计}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}智能体定位}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}核心创意}{3}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}总体架构}{3}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}核心对象设计}{4}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}基本工作流程}{5}{subsection.2.5}%
+\contentsline {section}{\numberline {3}关键机制设计与实现}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}面向持续推进的学习状态建模机制}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}课程资源接入与最小上下文构建机制}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}课后监督与复盘机制}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}周期复习与动态调整机制}{6}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}个性化 cron 自动化机制}{7}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}原型实现}{7}{subsection.3.6}%
+\contentsline {section}{\numberline {4}场景验证与分析}{8}{section.4}%
+\contentsline {subsection}{\numberline {4.1}验证目标}{8}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}典型场景验证}{8}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}结果分析}{9}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}局限与难点}{10}{subsection.4.4}%
+\contentsline {section}{\numberline {5}应用前景}{10}{section.5}%
+\contentsfinish 

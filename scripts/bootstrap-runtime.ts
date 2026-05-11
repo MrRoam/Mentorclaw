@@ -1,10 +1,18 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { EducationRepo } from "../src/storage/education-repo.ts";
 import { WorkspaceRepo } from "../src/storage/workspace-repo.ts";
 import { resolveMentorclawRuntimeRoot } from "../src/utils/runtime-root.ts";
-import { nowIso } from "../src/utils/time.ts";
 
 const runtimeRoot = resolveMentorclawRuntimeRoot();
+const workspaceTemplateRoot = path.join(import.meta.dirname, "..", "templates", "runtime", "workspace");
+const templateFiles = [
+  "AGENTS.md",
+  "SOUL.md",
+  "TOOLS.md",
+  "IDENTITY.md",
+  "MEMORY.md",
+];
 
 const writeIfMissing = async (filePath: string, content: string): Promise<void> => {
   try {
@@ -16,49 +24,29 @@ const writeIfMissing = async (filePath: string, content: string): Promise<void> 
 
 const main = async (): Promise<void> => {
   const repo = new WorkspaceRepo(runtimeRoot);
+  const educationRepo = new EducationRepo(runtimeRoot);
   await repo.ensureScaffold();
+  await educationRepo.ensureScaffold();
 
-  const learnerDir = path.join(repo.paths.workspaceRoot, "agent", "learner");
-  const plansDir = path.join(repo.paths.workspaceRoot, "agent", "plans");
-  const curriculumDir = path.join(repo.paths.workspaceRoot, "agent", "curriculum");
+  const plansDir = path.join(repo.paths.workspaceRoot, "projects");
+  const cronsDir = path.join(repo.paths.workspaceRoot, "crons");
 
-  await writeIfMissing(
-    path.join(learnerDir, "LEARNER_STATE.yaml"),
-    `version: 1
-updated_at: ${nowIso()}
-language: zh-CN
-timezone: Asia/Shanghai
-active_plan_count: 0
-active_plan_ids: []
-current_focus: null
-risk_flags: []
-capability_signals: []
-`,
-  );
-  await writeIfMissing(path.join(learnerDir, "PROFILE.md"), "# Learner Profile\n\nStatus: pending population\n");
-  await writeIfMissing(path.join(learnerDir, "PREFERENCES.md"), "# Learner Preferences\n\nStatus: pending confirmation\n");
-  await writeIfMissing(path.join(learnerDir, "GLOBAL_GOALS.md"), "# Global Goals\n\nStatus: pending population\n");
-  await writeIfMissing(path.join(learnerDir, "GLOBAL_MISCONCEPTIONS.yaml"), "[]\n");
-  await writeIfMissing(path.join(learnerDir, "EVENTS.jsonl"), "");
+  for (const relativePath of templateFiles) {
+    const template = await readFile(path.join(workspaceTemplateRoot, relativePath), "utf8");
+    await writeIfMissing(path.join(repo.paths.workspaceRoot, relativePath), template);
+  }
 
-  await writeIfMissing(
-    path.join(plansDir, "INDEX.yaml"),
-    `version: 1
-active_plan_id: null
-plans: []
-`,
-  );
   await writeIfMissing(
     path.join(plansDir, "README.md"),
-    "# Plans\n\nLive plans live directly under this folder. Templates live under `_template/`.\n",
+    "# Projects\n\nEach project is a single YAML state file plus an append-only JSONL event log.\n",
   );
-
   await writeIfMissing(
-    path.join(curriculumDir, "README.md"),
-    "# Curriculum Assets\n\nStore reusable course truth here only when a plan needs it.\n",
+    path.join(cronsDir, "README.md"),
+    "# Crons\n\nStore cron definitions that target a course scope or a project.\n",
   );
 
   console.log(`Bootstrapped runtime scaffold at ${runtimeRoot}`);
+  console.log(`Education storage scaffolded at ${educationRepo.educationDir}`);
 };
 
 await main();

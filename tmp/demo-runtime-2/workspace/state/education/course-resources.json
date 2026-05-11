@@ -1,0 +1,49 @@
+[
+  {
+    "id": "resource-demo-ai-intro-post-class-ai-intro-replay-week6-srt",
+    "courseId": "course-2026-spring:demo-ai-intro-post-class:ai-intro-2026-spring",
+    "linkedItemId": "item-demo-ai-intro-post-class-ai-intro-replay-2026-04-15",
+    "parentId": null,
+    "resourceType": "subtitle",
+    "title": "人工智能导论 第6讲字幕",
+    "url": "https://example.com/replay/ai-intro-week6/subtitle.srt",
+    "localPath": null,
+    "metaJson": {
+      "language": "zh-CN"
+    }
+  },
+  {
+    "id": "resource-demo-ai-intro-post-class-ai-intro-replay-week6-pptx",
+    "courseId": "course-2026-spring:demo-ai-intro-post-class:ai-intro-2026-spring",
+    "linkedItemId": "item-demo-ai-intro-post-class-ai-intro-replay-2026-04-15",
+    "parentId": null,
+    "resourceType": "pptx",
+    "title": "人工智能导论 第6讲PPT",
+    "url": "https://example.com/replay/ai-intro-week6/slides.pptx",
+    "localPath": null,
+    "metaJson": {
+      "chapters": [
+        "神经网络结构演化",
+        "BP 与梯度下降",
+        "CNN 的设计动机"
+      ]
+    }
+  },
+  {
+    "id": "resource-demo-ai-intro-post-class-ai-intro-replay-week6-notes",
+    "courseId": "course-2026-spring:demo-ai-intro-post-class:ai-intro-2026-spring",
+    "linkedItemId": "item-demo-ai-intro-post-class-ai-intro-replay-2026-04-15",
+    "parentId": null,
+    "resourceType": "notes",
+    "title": "人工智能导论 第6讲知识摘要",
+    "url": "https://example.com/replay/ai-intro-week6/notes.md",
+    "localPath": null,
+    "metaJson": {
+      "summary": [
+        "神经网络发展有结构演化与训练方法演化两条主线。",
+        "BP 让多层网络具备了可训练性。",
+        "CNN 通过局部感受野与权值共享更适合图像任务。"
+      ]
+    }
+  }
+]

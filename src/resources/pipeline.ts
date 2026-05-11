@@ -1,4 +1,4 @@
-import type { PlanState, ResourceRef } from "../schemas/models.ts";
+import type { ProjectState, ResourceRef } from "../schemas/models.ts";
 
 export interface SourceRegistry {
   registerSource(sourceType: string, capabilities: string[]): void;
@@ -23,7 +23,7 @@ export interface RightsPolicy {
 }
 
 export interface ResourceBinder {
-  bindToPlan(plan: PlanState, resources: ResourceRef[]): PlanState;
+  bindToProject(project: ProjectState, resources: ResourceRef[]): ProjectState;
 }
 
 export class InMemorySourceRegistry implements SourceRegistry {
@@ -58,16 +58,23 @@ export class ConservativeRightsPolicy implements RightsPolicy {
   }
 }
 
-export class PlanResourceBinder implements ResourceBinder {
-  bindToPlan(plan: PlanState, resources: ResourceRef[]): PlanState {
-    const merged = new Map(plan.resources.map((resource) => [resource.id, resource]));
+export class ProjectResourceBinder implements ResourceBinder {
+  bindToProject(project: ProjectState, resources: ResourceRef[]): ProjectState {
+    const merged = new Map(project.resources.notes.map((note, index) => [`note-${index}`, note]));
     for (const resource of resources) {
-      merged.set(resource.id, { ...resource, binding: "plan", bindingId: plan.planId });
+      merged.set(resource.id, resource.title.trim());
     }
-    plan.resources = Array.from(merged.values());
-    return plan;
+    project.resources.notes = Array.from(merged.values());
+    return project;
+  }
+
+  bindToPlan(project: ProjectState, resources: ResourceRef[]): ProjectState {
+    return this.bindToProject(project, resources);
   }
 }
+
+// Legacy alias kept during the project-centric transition.
+export const PlanResourceBinder = ProjectResourceBinder;
 
 export class StubIngestionProvider implements IngestionProvider {
   readonly sourceType = "stub";
@@ -79,7 +86,7 @@ export class StubIngestionProvider implements IngestionProvider {
       kind: "web",
       sourceType: this.sourceType,
       uri: input.uri,
-      binding: "plan",
+      binding: "project",
       trustScore: 0.5,
       relevanceScore: 0.5,
       rights: "link_only",

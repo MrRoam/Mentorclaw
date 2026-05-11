@@ -18,7 +18,7 @@ type PluginConfig = {
 const plugin = definePluginEntry({
   id: "mentorclaw-kernel",
   name: "mentorclaw Kernel",
-  description: "Injects mentorclaw dynamic planning context and writes turn state back into the mentorclaw runtime instance.",
+  description: "Injects mentorclaw campus-learning context and writes project state back into the mentorclaw runtime instance.",
   register(api: OpenClawPluginApi) {
     const logger = api.logger;
     const pluginConfig = (api.pluginConfig ?? {}) as PluginConfig;
@@ -40,31 +40,32 @@ const plugin = definePluginEntry({
           const outcome = await orchestrator.handleTurn({
             message: event.prompt,
             now: nowIso(),
-            planId: binding?.planId,
+            projectId: binding?.projectId,
             threadId: binding?.threadId,
+            signals: binding?.pendingSignals,
           });
 
-          if (bindingStore && ctx.sessionKey && outcome.plan && outcome.thread) {
+          if (bindingStore && ctx.sessionKey && outcome.project) {
             await bindingStore.set({
               sessionKey: ctx.sessionKey,
-              planId: outcome.plan.planId,
-              threadId: outcome.thread.threadId,
+              projectId: outcome.project.projectId,
+              planId: binding?.planId ?? outcome.project.projectId,
+              threadId: binding?.threadId,
               updatedAt: nowIso(),
               lastWorkflow: outcome.decision.primary,
             });
           }
 
           return {
-            // Keep dynamic mentorclaw state in system-prompt space so the model still
-            // receives workflow/plan/thread context without rewriting the user's
-            // visible message body.
+            // Keep the bridge thin: dynamic project and durable-memory facts live in
+            // system prompt space without rewriting the user's visible message body.
             prependSystemContext: renderPromptContext(outcome),
             appendSystemContext: mentorclaw_STATIC_SYSTEM_APPEND,
           };
         } catch (error) {
           logger.warn(`mentorclaw-kernel before_prompt_build failed: ${String(error)}`);
           return {
-            prependSystemContext: "mentorclaw kernel warning: dynamic planning context was unavailable for this turn.",
+            prependSystemContext: "mentorclaw kernel warning: dynamic project context was unavailable for this turn.",
             appendSystemContext: mentorclaw_STATIC_SYSTEM_APPEND,
           };
         }

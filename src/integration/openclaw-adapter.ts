@@ -1,15 +1,17 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type { LearningEvent, TurnOutcome } from "../schemas/models.ts";
+import type { LearningEvent, TurnInput, TurnOutcome } from "../schemas/models.ts";
 import { WorkspaceRepo } from "../storage/workspace-repo.ts";
 import { nowIso } from "../utils/time.ts";
 
 export interface mentorclawSessionBinding {
   sessionKey: string;
-  planId: string;
-  threadId: string;
+  projectId: string;
+  planId?: string;
+  threadId?: string;
   updatedAt: string;
   lastWorkflow: string;
+  pendingSignals?: TurnInput["signals"];
 }
 
 interface BindingStoreShape {
@@ -18,7 +20,7 @@ interface BindingStoreShape {
 }
 
 const defaultStore = (): BindingStoreShape => ({
-  version: 1,
+  version: 2,
   bindings: {},
 });
 
@@ -45,7 +47,11 @@ export class SessionBindingStore {
 
   async set(binding: mentorclawSessionBinding): Promise<void> {
     const store = await this.readStore();
-    store.bindings[binding.sessionKey] = binding;
+    store.bindings[binding.sessionKey] = {
+      ...binding,
+      planId: binding.planId ?? binding.projectId,
+      threadId: binding.threadId ?? `thread-${binding.projectId}`,
+    };
     await this.writeStore(store);
   }
 
@@ -63,10 +69,29 @@ export class SessionBindingStore {
   private async readStore(): Promise<BindingStoreShape> {
     try {
       const raw = await readFile(this.filePath, "utf8");
-      const parsed = JSON.parse(raw) as Partial<BindingStoreShape>;
+      const parsed = JSON.parse(raw) as {
+        version?: number;
+        bindings?: Record<string, Partial<mentorclawSessionBinding> & { planId?: string }>;
+      };
+
+      const bindings: Record<string, mentorclawSessionBinding> = {};
+      for (const [sessionKey, entry] of Object.entries(parsed.bindings ?? {})) {
+        const projectId = typeof entry.projectId === "string" && entry.projectId.trim() ? entry.projectId : entry.planId?.trim();
+        if (!projectId) continue;
+        bindings[sessionKey] = {
+          sessionKey,
+          projectId,
+          planId: typeof entry.planId === "string" && entry.planId.trim() ? entry.planId : projectId,
+          threadId: typeof entry.threadId === "string" && entry.threadId.trim() ? entry.threadId : `thread-${projectId}`,
+          updatedAt: typeof entry.updatedAt === "string" ? entry.updatedAt : nowIso(),
+          lastWorkflow: typeof entry.lastWorkflow === "string" ? entry.lastWorkflow : "tutoring",
+          pendingSignals: entry.pendingSignals,
+        };
+      }
+
       return {
-        version: parsed.version ?? 1,
-        bindings: parsed.bindings ?? {},
+        version: parsed.version ?? 2,
+        bindings,
       };
     } catch {
       return defaultStore();
@@ -79,41 +104,33 @@ export class SessionBindingStore {
   }
 }
 
-const toBulletList = (title: string, items: string[]): string =>
-  items.length ? `## ${title}\n- ${items.join("\n- ")}` : "";
+const renderSection = (title: string, lines: string[]): string =>
+  lines.length ? `## ${title}\n- ${lines.join("\n- ")}` : "";
 
 export const renderPromptContext = (outcome: TurnOutcome): string => {
   const sections = [
-    "# mentorclaw Kernel Context",
+    "# mentorclaw Context",
     "",
-    `Primary workflow: ${outcome.decision.primary}`,
-    ...(outcome.decision.secondary ? [`Secondary workflow: ${outcome.decision.secondary}`] : []),
+    renderSection("Current Turn", outcome.context.projectSummary),
     "",
-    toBulletList("Why This Workflow", outcome.decision.reasons),
+    renderSection("Course Context", outcome.context.resourceSummary),
     "",
-    toBulletList("Learner State", outcome.context.learnerSummary),
+    renderSection("Locators", outcome.context.locatorSummary),
     "",
-    toBulletList("Plan State", outcome.context.planSummary),
+    renderSection("Durable Learner Context", outcome.context.memorySummary),
     "",
-    toBulletList("Thread State", outcome.context.threadSummary),
-    "",
-    toBulletList("Resource State", outcome.context.resourceSummary),
-    "",
-    toBulletList(
-      "Proactive Actions",
-      outcome.proactiveActions.map((action) => `${action.kind}: ${action.reason}`),
-    ),
+    renderSection("Read Set", outcome.context.readSet),
   ].filter(Boolean);
 
   return sections.join("\n");
 };
 
 export const mentorclaw_STATIC_SYSTEM_APPEND = [
-  "You are operating with the mentorclaw education kernel.",
-  "Treat the injected kernel context as the current source of truth for workflow, learner state, plan state, and thread state.",
-  "Do not invent plan ids, thread ids, or memory updates that are not present in the injected kernel context.",
-  "When the workflow is planning, optimize for clarifying goals, constraints, deadlines, and next executable tasks.",
-  "When the workflow is evaluation or review, ground judgments in evidence and be conservative about mastery claims.",
+  "You are operating inside mentorclaw, a campus-platform-focused learning agent.",
+  "Use the current project and the durable learner memory when they are relevant.",
+  "Do not invent project ids, course bindings, or resource facts that were not provided.",
+  "If the current turn is project setup, clarify scope, course, deadline, and the next concrete action.",
+  "If the current turn is a review, stay evidence-based and conservative about mastery claims.",
 ].join("\n");
 
 const extractTextFromContent = (content: unknown): string => {
@@ -159,32 +176,36 @@ export const extractLastAssistantText = (messages: unknown[]): string | null => 
   return null;
 };
 
-export const recordAgentEnd = async (repo: WorkspaceRepo, binding: mentorclawSessionBinding | null, event: { success: boolean; error?: string; messages: unknown[]; durationMs?: number }): Promise<void> => {
-  if (!binding) return;
+export const recordAgentEnd = async (
+  repo: WorkspaceRepo,
+  binding: mentorclawSessionBinding | null,
+  event: { success: boolean; error?: string; messages: unknown[]; durationMs?: number },
+): Promise<void> => {
+  if (!binding?.projectId) return;
 
   const lastAssistantText = extractLastAssistantText(event.messages);
   const ts = nowIso();
   const learningEvent: LearningEvent = {
     ts,
-    level: "thread",
+    level: "project",
     type: event.success ? "assistant_reply_recorded" : "assistant_reply_failed",
-    planId: binding.planId,
-    threadId: binding.threadId,
+    projectId: binding.projectId,
+    planId: binding.projectId,
     evidence: lastAssistantText ? [lastAssistantText] : [event.error ?? "No assistant reply text captured."],
     impact: event.success ? "Assistant reply completed and was recorded." : `Assistant run failed: ${event.error ?? "unknown error"}`,
-    promotion: "thread",
+    promotion: "project",
     metadata: {
       durationMs: event.durationMs,
     },
   };
 
-  await repo.appendThreadEvent(binding.planId, binding.threadId, learningEvent);
-
-  const thread = await repo.readThreadState(binding.planId, binding.threadId);
-  thread.updatedAt = ts;
-  if (lastAssistantText) {
-    thread.summary = `${thread.summary}\nAssistant reply captured.`.trim();
-    thread.workingMemory = [...thread.workingMemory, `Assistant reply: ${lastAssistantText}`].slice(-12);
+  await repo.appendProjectEvent(binding.projectId, learningEvent);
+  if (binding.threadId) {
+    await repo.appendThreadEvent(binding.projectId, binding.threadId, {
+      ...learningEvent,
+      level: "thread",
+      threadId: binding.threadId,
+      promotion: "thread",
+    });
   }
-  await repo.writeThreadState(thread);
 };

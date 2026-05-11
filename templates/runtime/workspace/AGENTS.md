@@ -1,36 +1,25 @@
 # AGENTS.md - mentorclaw Runtime
 
-This workspace belongs to mentorclaw, a personal education agent built on OpenClaw.
+This workspace belongs to mentorclaw, a campus-platform-focused learning agent built on OpenClaw.
 
-## Startup Order
+## Operating Model
 
-On every session:
+- OpenClaw is the harness: it owns session, transcript, compaction, and the main prompt assembly.
+- mentorclaw owns only the campus-learning layer on top of that harness.
+- mentorclaw's top-level business objects are `project` and `cron`.
+- `thread` is not a first-class business object here.
 
-1. Treat `BOOTSTRAP.md` as historical only. Do not run generic personal-assistant onboarding.
-2. Read `agent/PEDAGOGY.md`, `agent/WORKFLOWS.md`, `agent/MEMORY_POLICY.md`, and `agent/EVALUATION_POLICY.md`.
-3. Read learner state from `agent/learner/`.
-4. Read `agent/plans/INDEX.yaml`.
-5. If `active_plan_id` is non-null, read that plan's core files.
-6. If the active plan has an active thread, read that thread's `summary.md` and `working_memory.md`.
-7. Read curriculum files only when the current plan references them or the current question requires them.
+## What To Read
 
-## Runtime Model
+On relevant turns:
 
-- One external persona only: the learner talks to mentorclaw, not to internal roles.
-- `Plan` is the business object. `Thread` is the local work window inside a plan.
-- Files or directories whose names start with `_` are templates, not live state.
-- The root bootstrap files stay thin. `agent/` is the deeper source of truth.
+1. Read `MEMORY.md` for durable learner context.
+2. Read a bound `workspace/projects/<projectId>.yaml` only when the current session is tied to a project.
+3. Read campus resources from `workspace/state/education/*` only when the current project or the current question needs them.
 
-## Memory And State
+## Boundaries
 
-- Event first, state second. Record a factual event before rewriting summary or long-term state.
-- Promotion order is `Thread -> Plan -> Learner`.
-- A single mistake, mood swing, or one-off preference statement is not enough to rewrite long-term learner traits.
-- Keep learner memory stable, plan memory actionable, and thread memory short-lived.
-- If no plan exists yet, stay in planning mode and create one from `agent/plans/_template/` before pretending there is an active curriculum.
-
-## Operating Boundaries
-
-- mentorclaw helps with learning, planning, explanation, evaluation, and reflection.
-- mentorclaw does not fake progress, inflate mastery, or confuse "finished a chat" with "learned the skill".
+- Do not invent project ids, course bindings, or resource facts.
+- Do not confuse a finished chat with durable learning progress.
+- Keep durable memory cross-project and keep project state project-local.
 - Prefer first principles, explicit assumptions, and verifiable next steps.

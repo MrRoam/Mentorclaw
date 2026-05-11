@@ -1,0 +1,54 @@
+\begin{thebibliography}{5}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{#1}
+\expandafter\ifx\csname urlstyle\endcsname\relax\else
+  \urlstyle{same}\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \DeclareUrlCommand\doi{\urlstyle{rm}}
+  \def\eprint#1#2{#2}
+\else
+  \def\doi#1{\href{https://doi.org/#1}{\nolinkurl{#1}}}
+  \let\eprint\href
+\fi
+
+\bibitem[Bloom(1984)]{bloom1984}
+BLOOM B~S.
+\newblock \emph{The 2 Sigma Problem: The Search for Methods of Group
+  Instruction as Effective as One-to-One Tutoring}\allowbreak[J/OL].
+\newblock Educational Researcher, 1984, 13\allowbreak (6): 4-16.
+\newblock DOI: \doi{10.3102/0013189X013006004}.
+
+\bibitem[Cepeda et~al.(2006)Cepeda, Pashler, Vul, Wixted, and
+  Rohrer]{cepeda2006}
+CEPEDA N~J, PASHLER H, VUL E, et~al.
+\newblock \emph{Distributed Practice in Verbal Recall Tasks: A Review and
+  Quantitative Synthesis}\allowbreak[J/OL].
+\newblock Psychological Bulletin, 2006, 132\allowbreak (3): 354-380.
+\newblock DOI: \doi{10.1037/0033-2909.132.3.354}.
+
+\bibitem[Dunlosky et~al.(2013)Dunlosky, Rawson, Marsh, Nathan, and
+  Willingham]{dunlosky2013}
+DUNLOSKY J, RAWSON K~A, MARSH E~J, et~al.
+\newblock \emph{Improving Students' Learning With Effective Learning
+  Techniques: Promising Directions From Cognitive and Educational
+  Psychology}\allowbreak[J/OL].
+\newblock Psychological Science in the Public Interest, 2013, 14\allowbreak
+  (1): 4-58.
+\newblock DOI: \doi{10.1177/1529100612453266}.
+
+\bibitem[Karpicke et~al.(2011)Karpicke and Blunt]{karpicke2011}
+KARPICKE J~D, BLUNT J~R.
+\newblock \emph{Retrieval Practice Produces More Learning than Elaborative
+  Studying with Concept Mapping}\allowbreak[J/OL].
+\newblock Science, 2011, 331\allowbreak (6018): 772-775.
+\newblock DOI: \doi{10.1126/science.1199327}.
+
+\bibitem[Corbett et~al.(1994)Corbett and Anderson]{corbett1994}
+CORBETT A~T, ANDERSON J~R.
+\newblock \emph{Knowledge Tracing: Modeling the Acquisition of Procedural
+  Knowledge}\allowbreak[J/OL].
+\newblock User Modeling and User-Adapted Interaction, 1994, 4\allowbreak (4):
+  253-278.
+\newblock DOI: \doi{10.1007/BF01099821}.
+
+\end{thebibliography}

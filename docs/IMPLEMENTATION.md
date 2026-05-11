@@ -7,7 +7,7 @@ This document explains what is implemented in the current mentorclaw source repo
 mentorclaw now has two layers:
 
 - `source repo`: `/home/jiaxu/mentorclaw-source`
-- `runtime instance`: `/home/jiaxu/.mentorclaw`
+- `runtime instance`: resolved from the local mentorclaw runtime root (`~/.mentorclaw`, `~/.openclaw-mentorclaw`, or `~/.openclaw-educlaw`)
 
 The source repo contains the generic education kernel and the OpenClaw plugin package. The runtime instance contains live workspace state, logs, credentials, channel bindings, device pairings, and session data.
 
@@ -152,6 +152,37 @@ What it does:
 
 This is intentionally a local debugging workstation, not a second product runtime.
 
+### 8. Course And Schedule Storage
+
+mentorclaw now includes a separate file-backed education data store for:
+
+- courses
+- course items such as class sessions and replay entries
+- course resources such as subtitles and PPT files
+- schedule view preferences
+
+The detailed storage explanation lives in `docs/SCHEDULE_AND_COURSE_STORAGE.md`.
+
+### 9. BUAA Providers
+
+mentorclaw now includes real BUAA provider code instead of only JSON fixture import paths.
+
+Implemented providers:
+
+- `BYXT` timetable sync
+- `MSA` replay and replay-asset sync
+- livingroom capture import for subtitle / notes / slide assets
+
+The main source files are:
+
+- `src/education/providers/buaa/byxt.ts`
+- `src/education/providers/buaa/msa.ts`
+- `src/education/providers/buaa/shared.ts`
+- `src/education/sync.ts`
+- `src/education/query.ts`
+
+The BUAA-specific usage and runtime-boundary explanation lives in `docs/BUAA_SYNC.md`.
+
 ## How the Logic Works
 
 For each user turn:
@@ -219,6 +250,8 @@ These are the main gaps:
 - no dedicated review UI or progress UI
 - no automatic external reminders over Slack / Feishu / Calendar yet
 - no robust evidence parser for uploaded files and tool outputs
+- no fully automatic MSA livingroom subtitle capture without an input capture file yet
+- no full UBAA-style multi-service token refresh server yet
 
 So the kernel and adapter are real, but the product is not yet multi-user safe.
 

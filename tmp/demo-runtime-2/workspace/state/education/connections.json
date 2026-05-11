@@ -1,0 +1,14 @@
+[
+  {
+    "id": "connection-demo-ai-intro-post-class-jiaxu-demo",
+    "sourceType": "demo-ai-intro-post-class",
+    "accountLabel": "jiaxu-demo",
+    "status": "connected",
+    "auth": {},
+    "metadata": {
+      "description": "Demo fixture for the AI Intro post-class review workflow."
+    },
+    "lastSyncedAt": "2026-04-15T21:25:00.000+08:00",
+    "lastError": null
+  }
+]

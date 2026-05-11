@@ -1,69 +1,59 @@
-import type { LearnerSummary, PlanState, ThreadState, TurnInput, WorkflowDecision } from "../schemas/models.ts";
+import type { LearnerSummary, PlanState, TurnInput, WorkflowDecision } from "../schemas/models.ts";
 
-const hasGoalSignal = (message: string): boolean =>
-  /(计划|plan|学习|prepare|learn|考试|goal|目标|两周|一个月|三个月|deadline)/i.test(message);
+const hasProjectSetupSignal = (message: string): boolean =>
+  /(计划|project|课程项目|复习项目|帮我建|创建项目|自学项目|prepare|goal|目标|deadline|ddl)/i.test(message);
 
-const hasEvaluationSignal = (message: string, submittedWork: boolean): boolean =>
-  submittedWork || /(检查|批改|evaluate|评估|test me|测验|我做完了|review my answer)/i.test(message);
-
-const hasReviewSignal = (message: string, requestReview: boolean): boolean =>
-  requestReview || /(复盘|总结|review|回顾|总结一下)/i.test(message);
+const hasReviewSignal = (message: string, submittedWork: boolean, requestReview: boolean): boolean =>
+  submittedWork || requestReview || /(检查|批改|评估|review|总结|回顾|我做完了|作业给你看)/i.test(message);
 
 export class WorkflowRouter {
-  decide(input: TurnInput, learner: LearnerSummary, plan?: PlanState, thread?: ThreadState): WorkflowDecision {
+  decide(input: TurnInput, learner: LearnerSummary, plan?: PlanState): WorkflowDecision {
     if (input.signals?.forceWorkflow) {
       return {
         primary: input.signals.forceWorkflow,
         reasons: ["Workflow forced by caller signal."],
+        shouldCreateProject: input.signals.forceWorkflow === "planning" && !plan,
         shouldCreatePlan: input.signals.forceWorkflow === "planning" && !plan,
-        shouldCreateThread: !thread,
+        shouldCreateThread: false,
       };
     }
 
-    if (!plan && hasGoalSignal(input.message)) {
+    if (!plan && hasProjectSetupSignal(input.message)) {
       return {
         primary: "planning",
-        reasons: ["No active plan matched while the learner expressed a goal or timeboxed objective."],
+        reasons: ["The learner described a new course-related goal and no active project is bound yet."],
+        shouldCreateProject: true,
         shouldCreatePlan: true,
-        shouldCreateThread: true,
+        shouldCreateThread: false,
       };
     }
 
-    if (hasEvaluationSignal(input.message, Boolean(input.signals?.submittedWork))) {
-      return {
-        primary: "evaluation",
-        secondary: "review",
-        reasons: ["The learner provided work or asked for evaluation."],
-        shouldCreatePlan: false,
-        shouldCreateThread: !thread,
-      };
-    }
-
-    if (hasReviewSignal(input.message, Boolean(input.signals?.requestReview))) {
+    if (hasReviewSignal(input.message, Boolean(input.signals?.submittedWork), Boolean(input.signals?.requestReview))) {
       return {
         primary: "review",
-        reasons: ["The learner explicitly requested a review or recap."],
+        reasons: ["The learner submitted work or explicitly asked for review, recap, or evaluation."],
+        shouldCreateProject: false,
         shouldCreatePlan: false,
-        shouldCreateThread: !thread,
+        shouldCreateThread: false,
       };
     }
 
-    const blockedTasks = plan?.tasks.filter((task) => task.status === "blocked").length ?? 0;
-    if (/(重排|replan|调整计划|改计划|来不及|delay|拖延)/i.test(input.message) || blockedTasks >= 2 || learner.state.risk_flags.includes("stalled")) {
+    if (learner.state.current_focus && !plan && hasProjectSetupSignal(learner.state.current_focus)) {
       return {
-        primary: "replanning",
-        secondary: "review",
-        reasons: ["Plan risk or explicit replanning intent was detected."],
-        shouldCreatePlan: false,
-        shouldCreateThread: !thread,
+        primary: "planning",
+        reasons: ["The learner has a stored focus but no currently bound project."],
+        shouldCreateProject: true,
+        shouldCreatePlan: true,
+        shouldCreateThread: false,
       };
     }
 
     return {
       primary: "tutoring",
-      reasons: ["Default to tutoring inside the current plan context."],
+      reasons: ["Default to tutoring inside the current project or course context."],
+      shouldCreateProject: false,
       shouldCreatePlan: false,
-      shouldCreateThread: !thread,
+      shouldCreateThread: false,
     };
   }
 }

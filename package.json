@@ -17,6 +17,12 @@
     "debug-ui:restart": "node --experimental-strip-types scripts/debug-ui-daemon.ts restart",
     "debug-ui:status": "node --experimental-strip-types scripts/debug-ui-daemon.ts status",
     "bootstrap:runtime": "node --experimental-strip-types scripts/bootstrap-runtime.ts",
+    "migrate:top-level-runtime": "node --experimental-strip-types scripts/migrate-top-level-runtime.ts",
+    "import:education": "node --experimental-strip-types scripts/import-education-json.ts",
+    "import:buaa:livingroom": "node --experimental-strip-types scripts/import-buaa-livingroom-json.ts",
+    "sync:buaa:byxt": "node --experimental-strip-types scripts/sync-buaa-byxt.ts",
+    "sync:buaa:msa": "node --experimental-strip-types scripts/sync-buaa-msa.ts",
+    "sync:education": "node --experimental-strip-types scripts/sync-education-connection.ts",
     "validate:runtime": "node --experimental-strip-types scripts/validate-runtime.ts",
     "demo:turn": "node --experimental-strip-types scripts/demo-turn.ts"
   },

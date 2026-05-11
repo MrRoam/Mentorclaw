@@ -88,9 +88,22 @@
         },
       };
     </script>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css?v=20260428-mentorclaw-debug" />
   </head>
   <body class="bg-background text-on-background">
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        if (!params.has("reset")) return;
+        Object.keys(localStorage)
+          .filter(function (key) {
+            return key.indexOf("mentorclaw.stitch.") === 0;
+          })
+          .forEach(function (key) {
+            localStorage.removeItem(key);
+          });
+      })();
+    </script>
     <div id="app">
       <div class="min-h-screen flex items-center justify-center bg-background px-6">
         <div class="text-center">
@@ -102,6 +115,6 @@
         </div>
       </div>
     </div>
-    <script src="/app.js" type="module"></script>
+    <script src="/app.js?v=20260428-mentorclaw-debug" type="module"></script>
   </body>
 </html>
